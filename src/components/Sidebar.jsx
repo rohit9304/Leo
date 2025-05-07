@@ -14,9 +14,9 @@ export default function Sidebar() {
         <Link to="/new-joinees" className="hover:underline">
           New Joinees
         </Link>
-        <a to="#" className="hover:underline">
+        <Link to="/speciality-config" className="hover:underline">
           Speciality Config
-        </a>
+        </Link>
       </nav>
     </aside>
   );

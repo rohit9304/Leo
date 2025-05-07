@@ -42,15 +42,23 @@ const NewJoineeTable = () => {
     );
   };
 
-  const assignToCohort = () => {
+  const assignToCohort = async () => {
     if (selectedCohort && selectedLearners.length > 0) {
-      // Make API call here if needed, then redirect
-      navigate(`/cohort/${selectedCohort}`);
+      try {
+        await axios.post("http://localhost:8080/api/associates/assign", {
+          cohortId: selectedCohort,
+          cnums: selectedLearners,
+        });
+
+        navigate(`/cohort/${selectedCohort}`);
+      } catch (error) {
+        console.error("Error assigning learners to cohort:", error);
+        alert("Failed to assign learners. Please try again.");
+      }
     } else {
       alert("Please select at least one learner and a cohort.");
     }
   };
-
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-xl font-semibold mb-4">New Joinees</h2>
