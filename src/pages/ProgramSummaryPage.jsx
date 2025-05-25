@@ -1,6 +1,7 @@
 import React from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import LearnerComparisonChart from "../components/LearnerComparisonChart";
 
 const ProgramSummaryPage = () => {
   return (
@@ -12,6 +13,7 @@ const ProgramSummaryPage = () => {
           <h1 className="text-3xl font-bold text-center mb-6">
             Program Summary Page
           </h1>
+          <LearnerComparisonChart />
         </main>
       </div>
     </div>

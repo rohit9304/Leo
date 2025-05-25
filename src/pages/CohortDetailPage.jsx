@@ -3,22 +3,29 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import AddLearnerModal from "../components/AddLearnerModal";
 
 const CohortDetailPage = () => {
   const { cohortId } = useParams();
   const [cohort, setCohort] = useState(null);
   const [learners, setLearners] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8080/api/cohorts/${cohortId}/learners`)
+      .get(`http://localhost:8080/api/associates/${cohortId}/learners`)
       .then((res) => {
+        console.log(res.data.cohort);
         setCohort(res.data.cohort);
         setLearners(res.data.learners);
-        console.log(res.data);
       })
       .catch((error) => console.error("Error fetching cohort details:", error));
   }, [cohortId]);
+
+  const handleLearnerAdded = (newLearner) => {
+    setLearners((prev) => [...prev, newLearner]);
+    setIsModalOpen(false);
+  };
 
   if (!cohort) return <div>Loading...</div>;
 
@@ -50,7 +57,16 @@ const CohortDetailPage = () => {
             </p>
           </div>
 
-          <h3 className="text-xl font-semibold mb-3">Learners</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">Learners</h3>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-green-600 text-white px-4 py-2 rounded"
+            >
+              Add New Learner
+            </button>
+          </div>
+
           <div className="overflow-x-auto">
             <table className="min-w-full table-auto border-collapse">
               <thead className="bg-gray-100">
@@ -92,6 +108,14 @@ const CohortDetailPage = () => {
               Send Reminders
             </button>
           </div>
+
+          {isModalOpen && (
+            <AddLearnerModal
+              cohort={cohort}
+              onClose={() => setIsModalOpen(false)}
+              onAdd={handleLearnerAdded}
+            />
+          )}
         </main>
       </div>
     </div>

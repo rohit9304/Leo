@@ -4,14 +4,29 @@ import { Link } from "react-router-dom";
 
 export default function ActiveCohorts() {
   const [cohorts, setCohorts] = useState([]);
+  const market1 = localStorage.getItem("market") || "ALL";
+  const [market, setMarket] = useState(market1);
+
+  const [showAddModal, setShowAddModal] = useState(false);
   const [newCohort, setNewCohort] = useState({
     cohortName: "",
-    startDate: "",
-    endDate: "",
+    geo: "",
+    market: "",
     educationManager: "",
+    endDate: "",
+    startDate: "",
     status: "",
+    indctionProjectedEndDate: "",
+    indctionProjectedStartDate: "",
+    specialityTrainingStartDate: "",
+    essentialProjectedndDate: "",
+    essentialStartDate: "",
+    y1GrowthSurveyEndDate: "",
+    y1GrowthSurveyStartDate: "",
+    stayAheadEventEndDate: "",
+    stayAHeadEventStartDate: "",
   });
-  const [showAddRow, setShowAddRow] = useState(false);
+
   const [editCohortId, setEditCohortId] = useState(null);
   const [editCohortData, setEditCohortData] = useState({});
 
@@ -19,9 +34,13 @@ export default function ActiveCohorts() {
     fetchCohorts();
   }, []);
 
-  const fetchCohorts = async () => {
+  const fetchCohorts = async (selectedMarket = "ALL") => {
     try {
-      const response = await axios.get("http://localhost:8080/api/cohorts");
+      const url =
+        selectedMarket === "ALL"
+          ? "http://localhost:8080/api/cohorts"
+          : `http://localhost:8080/api/cohorts?market=${selectedMarket}`;
+      const response = await axios.get(url);
       setCohorts(response.data);
     } catch (error) {
       console.error("Error fetching cohorts:", error);
@@ -31,7 +50,7 @@ export default function ActiveCohorts() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:8080/api/cohorts/${id}`);
-      fetchCohorts();
+      fetchCohorts(market);
     } catch (error) {
       console.error("Error deleting cohort:", error);
     }
@@ -48,13 +67,24 @@ export default function ActiveCohorts() {
       await axios.post("http://localhost:8080/api/cohorts", newCohort);
       setNewCohort({
         cohortName: "",
-        startDate: "",
-        endDate: "",
+        geo: "",
+        market: "",
         educationManager: "",
+        endDate: "",
+        startDate: "",
         status: "",
+        indctionProjectedEndDate: "",
+        indctionProjectedStartDate: "",
+        specialityTrainingStartDate: "",
+        essentialProjectedndDate: "",
+        essentialStartDate: "",
+        y1GrowthSurveyEndDate: "",
+        y1GrowthSurveyStartDate: "",
+        stayAheadEventEndDate: "",
+        stayAHeadEventStartDate: "",
       });
-      setShowAddRow(false);
-      fetchCohorts();
+      setShowAddModal(false);
+      fetchCohorts(market);
     } catch (error) {
       console.error("Error adding cohort:", error);
     }
@@ -62,13 +92,7 @@ export default function ActiveCohorts() {
 
   const handleEditClick = (cohort) => {
     setEditCohortId(cohort.id);
-    setEditCohortData({
-      cohortName: cohort.cohortName,
-      startDate: cohort.startDate,
-      endDate: cohort.endDate,
-      educationManager: cohort.educationManager,
-      status: cohort.status,
-    });
+    setEditCohortData({ ...cohort });
   };
 
   const handleEditInputChange = (e) => {
@@ -83,7 +107,7 @@ export default function ActiveCohorts() {
         editCohortData
       );
       setEditCohortId(null);
-      fetchCohorts();
+      fetchCohorts(market);
     } catch (error) {
       console.error("Error updating cohort:", error);
     }
@@ -93,8 +117,38 @@ export default function ActiveCohorts() {
     setEditCohortId(null);
   };
 
+  const handleMarketChange = (e) => {
+    setMarket(e.target.value);
+  };
+
+  const handleFilter = () => {
+    fetchCohorts(market);
+  };
+
   return (
     <div className="p-6">
+      {/* Market Filter */}
+      <div className="mb-4 flex gap-4 items-center">
+        <select
+          value={market}
+          onChange={handleMarketChange}
+          className="border p-2 rounded"
+        >
+          <option value="ALL">All Markets</option>
+          <option value="USA">USA</option>
+          <option value="UK">UK</option>
+          <option value="India">India</option>
+          <option value="Germany">Germany</option>
+        </select>
+        <button
+          onClick={handleFilter}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+        >
+          Filter
+        </button>
+      </div>
+
+      {/* Table */}
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-gray-200 text-left">
@@ -155,7 +209,7 @@ export default function ActiveCohorts() {
                         onChange={handleEditInputChange}
                         className="border p-1 w-full"
                       >
-                        <option value="">Select Status</option>
+                        <option value="">Select</option>
                         <option value="Active">Active</option>
                         <option value="Upcoming">Upcoming</option>
                         <option value="Completed">Completed</option>
@@ -180,7 +234,7 @@ export default function ActiveCohorts() {
                   <>
                     <td className="p-3">
                       <Link
-                        to={`/cohort/${cohort.id}`} // Link to CohortDetails page with cohort ID
+                        to={`/associates/${cohort.id}`}
                         className="text-blue-500 hover:text-blue-700"
                       >
                         {cohort.cohortName}
@@ -215,91 +269,61 @@ export default function ActiveCohorts() {
               </td>
             </tr>
           )}
-
-          {/* Add New Cohort Row */}
-          {showAddRow && (
-            <tr className="border-b bg-gray-100">
-              <td className="p-2">
-                <input
-                  type="text"
-                  name="cohortName"
-                  placeholder="Cohort Name"
-                  value={newCohort.cohortName}
-                  onChange={handleInputChange}
-                  className="border p-1 w-full"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="date"
-                  name="startDate"
-                  value={newCohort.startDate}
-                  onChange={handleInputChange}
-                  className="border p-1 w-full"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="date"
-                  name="endDate"
-                  value={newCohort.endDate}
-                  onChange={handleInputChange}
-                  className="border p-1 w-full"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="text"
-                  name="educationManager"
-                  placeholder="Edn Manager"
-                  value={newCohort.educationManager}
-                  onChange={handleInputChange}
-                  className="border p-1 w-full"
-                />
-              </td>
-              <td className="p-2">
-                <select
-                  name="status"
-                  value={newCohort.status}
-                  onChange={handleInputChange}
-                  className="border p-1 w-full"
-                >
-                  <option value="">Select Status</option>
-                  <option value="Active">Active</option>
-                  <option value="Upcoming">Upcoming</option>
-                  <option value="Completed">Completed</option>
-                </select>
-              </td>
-              <td className="p-2 space-x-2">
-                <button
-                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
-                  onClick={handleAddCohort}
-                >
-                  Save
-                </button>
-                <button
-                  className="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded"
-                  onClick={() => setShowAddRow(false)}
-                >
-                  Cancel
-                </button>
-              </td>
-            </tr>
-          )}
         </tbody>
       </table>
 
       {/* Add New Cohort Button */}
       <div className="mt-6">
-        {!showAddRow && (
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
-            onClick={() => setShowAddRow(true)}
-          >
-            Add New Cohort
-          </button>
-        )}
+        <button
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
+          onClick={() => setShowAddModal(true)}
+        >
+          Add New Cohort
+        </button>
       </div>
+
+      {/* Modal Form */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <form
+            onSubmit={handleAddCohort}
+            className="bg-white rounded-lg p-6 w-[90%] max-w-3xl max-h-[90vh] overflow-y-auto"
+          >
+            <h2 className="text-xl font-semibold mb-4">Add New Cohort</h2>
+            <div className="grid grid-cols-2 gap-4">
+              {Object.entries(newCohort).map(([key, value]) => (
+                <div key={key}>
+                  <label className="block text-sm font-medium capitalize mb-1">
+                    {key}
+                  </label>
+                  <input
+                    type={key.toLowerCase().includes("date") ? "date" : "text"}
+                    name={key}
+                    value={value}
+                    onChange={handleInputChange}
+                    className="w-full border px-3 py-1 rounded"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                type="submit"
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

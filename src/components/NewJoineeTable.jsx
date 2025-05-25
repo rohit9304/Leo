@@ -6,7 +6,8 @@ const NewJoineeTable = () => {
   const [selectedCohort, setSelectedCohort] = useState("");
   const [selectedLearners, setSelectedLearners] = useState([]);
   const [learners, setLearners] = useState([]);
-  const [cohorts, setCohorts] = useState([]); // <-- new state for cohorts
+  const [cohorts, setCohorts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +21,7 @@ const NewJoineeTable = () => {
       .then((res) => {
         console.log("Learners:", res.data);
         setLearners(res.data);
+        setLoading(false);
       })
       .catch((error) => console.error("Error fetching learners:", error));
   };
@@ -44,13 +46,21 @@ const NewJoineeTable = () => {
 
   const assignToCohort = async () => {
     if (selectedCohort && selectedLearners.length > 0) {
-      try {
-        await axios.post("http://localhost:8080/api/associates/assign", {
-          cohortId: selectedCohort,
-          cnums: selectedLearners,
-        });
+      const learnersToAssign = learners.filter((learner) =>
+        selectedLearners.includes(learner.cnum)
+      );
 
-        navigate(`/cohort/${selectedCohort}`);
+      const payload = {
+        cohortId: selectedCohort,
+        learners: learnersToAssign,
+      };
+
+      try {
+        await axios.post(
+          "http://localhost:8080/api/associates/assign",
+          payload
+        );
+        navigate(`/associates/${selectedCohort}`);
       } catch (error) {
         console.error("Error assigning learners to cohort:", error);
         alert("Failed to assign learners. Please try again.");
@@ -59,6 +69,19 @@ const NewJoineeTable = () => {
       alert("Please select at least one learner and a cohort.");
     }
   };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-700 text-lg font-medium">
+            Loading, please wait...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-xl font-semibold mb-4">New Joinees</h2>
