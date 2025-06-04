@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function ActiveCohorts() {
   const [cohorts, setCohorts] = useState([]);
   const market1 = localStorage.getItem("market") || "ALL";
   const [market, setMarket] = useState(market1);
-
+  const [isEditMode, setIsEditMode] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newCohort, setNewCohort] = useState({
     cohortName: "",
@@ -29,6 +29,7 @@ export default function ActiveCohorts() {
 
   const [editCohortId, setEditCohortId] = useState(null);
   const [editCohortData, setEditCohortData] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCohorts();
@@ -64,7 +65,16 @@ export default function ActiveCohorts() {
   const handleAddCohort = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8080/api/cohorts", newCohort);
+      if (isEditMode) {
+        await axios.put(
+          `http://localhost:8080/api/cohorts/${editCohortData.id}`,
+          editCohortData
+        );
+      } else {
+        await axios.post("http://localhost:8080/api/cohorts", newCohort);
+      }
+      setShowAddModal(false);
+      setIsEditMode(false);
       setNewCohort({
         cohortName: "",
         geo: "",
@@ -83,16 +93,16 @@ export default function ActiveCohorts() {
         stayAheadEventEndDate: "",
         stayAHeadEventStartDate: "",
       });
-      setShowAddModal(false);
       fetchCohorts(market);
     } catch (error) {
-      console.error("Error adding cohort:", error);
+      console.error("Error submitting cohort:", error);
     }
   };
 
   const handleEditClick = (cohort) => {
-    setEditCohortId(cohort.id);
-    setEditCohortData({ ...cohort });
+    setEditCohortData(cohort);
+    setIsEditMode(true);
+    setShowAddModal(true);
   };
 
   const handleEditInputChange = (e) => {
@@ -119,10 +129,7 @@ export default function ActiveCohorts() {
 
   const handleMarketChange = (e) => {
     setMarket(e.target.value);
-  };
-
-  const handleFilter = () => {
-    fetchCohorts(market);
+    fetchCohorts(e.target.value);
   };
 
   return (
@@ -140,12 +147,6 @@ export default function ActiveCohorts() {
           <option value="India">India</option>
           <option value="Germany">Germany</option>
         </select>
-        <button
-          onClick={handleFilter}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          Filter
-        </button>
       </div>
 
       {/* Table */}
@@ -257,6 +258,12 @@ export default function ActiveCohorts() {
                       >
                         Delete
                       </button>
+                      <button
+                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+                        onClick={() => navigate(`/associates/${cohort.id}`)}
+                      >
+                        View
+                      </button>
                     </td>
                   </>
                 )}
@@ -291,20 +298,26 @@ export default function ActiveCohorts() {
           >
             <h2 className="text-xl font-semibold mb-4">Add New Cohort</h2>
             <div className="grid grid-cols-2 gap-4">
-              {Object.entries(newCohort).map(([key, value]) => (
-                <div key={key}>
-                  <label className="block text-sm font-medium capitalize mb-1">
-                    {key}
-                  </label>
-                  <input
-                    type={key.toLowerCase().includes("date") ? "date" : "text"}
-                    name={key}
-                    value={value}
-                    onChange={handleInputChange}
-                    className="w-full border px-3 py-1 rounded"
-                  />
-                </div>
-              ))}
+              {Object.entries(isEditMode ? editCohortData : newCohort).map(
+                ([key, value]) => (
+                  <div key={key}>
+                    <label className="block text-sm font-medium capitalize mb-1">
+                      {key}
+                    </label>
+                    <input
+                      type={
+                        key.toLowerCase().includes("date") ? "date" : "text"
+                      }
+                      name={key}
+                      value={value}
+                      onChange={
+                        isEditMode ? handleEditInputChange : handleInputChange
+                      }
+                      className="w-full border px-3 py-1 rounded"
+                    />
+                  </div>
+                )
+              )}
             </div>
             <div className="mt-6 flex justify-end space-x-4">
               <button
@@ -315,7 +328,10 @@ export default function ActiveCohorts() {
               </button>
               <button
                 type="button"
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setIsEditMode(false);
+                }}
                 className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded"
               >
                 Cancel

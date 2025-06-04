@@ -6,6 +6,7 @@ import Cohorts from "./pages/Cohorts";
 import CohortDetailPage from "./pages/CohortDetailPage";
 import ProgramSummaryPage from "./pages/ProgramSummaryPage";
 import LoginPage from "./pages/LoginPage";
+import PaymentPage from "./pages/PaymentPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/cohorts" element={<Cohorts />} />
           <Route path="/new-joinees" element={<NewJoinee />} />
           <Route path="/associates/:cohortId" element={<CohortDetailPage />} />
+          <Route path="/payment" element={<PaymentPage />} />
           <Route
             path="/speciality-config"
             element={<SpecialityLearningPaths />}

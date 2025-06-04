@@ -59,6 +59,48 @@ const CohortDetailPage = () => {
 
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-semibold">Learners</h3>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData();
+                formData.append("file", e.target.file.files[0]);
+
+                axios
+                  .post(
+                    "http://localhost:8080/api/associates/upload",
+                    formData,
+                    {
+                      headers: {
+                        "Content-Type": "multipart/form-data",
+                      },
+                    }
+                  )
+                  .then(() => {
+                    alert("File uploaded successfully");
+                    window.location.reload(); // Reloads data
+                  })
+                  .catch((err) => {
+                    console.error("Upload failed:", err);
+                    alert("Upload failed");
+                  });
+              }}
+              className="flex items-center gap-4"
+            >
+              <input
+                type="file"
+                name="file"
+                accept=".xlsx, .xls"
+                className="border p-1 rounded"
+                required
+              />
+              <button
+                type="submit"
+                className="bg-indigo-600 text-white px-4 py-2 rounded"
+              >
+                Upload Excel
+              </button>
+            </form>
+
             <button
               onClick={() => setIsModalOpen(true)}
               className="bg-green-600 text-white px-4 py-2 rounded"

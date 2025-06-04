@@ -8,6 +8,7 @@ const NewJoineeTable = () => {
   const [learners, setLearners] = useState([]);
   const [cohorts, setCohorts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,6 +36,12 @@ const NewJoineeTable = () => {
       })
       .catch((error) => console.error("Error fetching cohorts:", error));
   };
+
+  const filteredLearners = learners.filter(
+    (learner) =>
+      learner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      learner.cnum.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const toggleLearnerSelection = (id) => {
     setSelectedLearners((prev) =>
@@ -86,6 +93,16 @@ const NewJoineeTable = () => {
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-xl font-semibold mb-4">New Joinees</h2>
 
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by Name or ID"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full table-auto border-collapse">
           <thead>
@@ -93,16 +110,18 @@ const NewJoineeTable = () => {
               <th className="px-4 py-2 text-left font-medium">Learner ID</th>
               <th className="px-4 py-2 text-left font-medium">Learner Name</th>
               <th className="px-4 py-2 text-left font-medium">Email</th>
+              <th className="px-4 py-2 text-left font-medium">Band</th>
               <th className="px-4 py-2 text-left font-medium">JRS</th>
               <th className="px-4 py-2 text-left font-medium">Select</th>
             </tr>
           </thead>
           <tbody>
-            {learners.map((learner) => (
+            {filteredLearners.map((learner) => (
               <tr key={learner.id} className="border-t">
                 <td className="px-4 py-2">{learner.cnum}</td>
                 <td className="px-4 py-2">{learner.name}</td>
                 <td className="px-4 py-2">{learner.internetEmail}</td>
+                <td className="px-4 py-2">{learner.bandCd}</td>
                 <td className="px-4 py-2">{learner.jrs}</td>
                 <td className="px-4 py-2 text-center">
                   <input
