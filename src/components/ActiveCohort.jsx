@@ -233,14 +233,7 @@ export default function ActiveCohorts() {
                   </>
                 ) : (
                   <>
-                    <td className="p-3">
-                      <Link
-                        to={`/associates/${cohort.id}`}
-                        className="text-blue-500 hover:text-blue-700"
-                      >
-                        {cohort.cohortName}
-                      </Link>
-                    </td>
+                    <td className="p-3">{cohort.cohortName}</td>
                     <td className="p-3">{cohort.startDate}</td>
                     <td className="p-3">{cohort.endDate}</td>
                     <td className="p-3">{cohort.educationManager}</td>

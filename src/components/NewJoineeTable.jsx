@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Loading from "../utils/Loading";
 
 const NewJoineeTable = () => {
   const [selectedCohort, setSelectedCohort] = useState("");
@@ -77,16 +78,7 @@ const NewJoineeTable = () => {
     }
   };
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-700 text-lg font-medium">
-            Loading, please wait...
-          </p>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
@@ -103,38 +95,52 @@ const NewJoineeTable = () => {
         />
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="px-4 py-2 text-left font-medium">Learner ID</th>
-              <th className="px-4 py-2 text-left font-medium">Learner Name</th>
-              <th className="px-4 py-2 text-left font-medium">Email</th>
-              <th className="px-4 py-2 text-left font-medium">Band</th>
-              <th className="px-4 py-2 text-left font-medium">JRS</th>
-              <th className="px-4 py-2 text-left font-medium">Select</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredLearners.map((learner) => (
-              <tr key={learner.id} className="border-t">
-                <td className="px-4 py-2">{learner.cnum}</td>
-                <td className="px-4 py-2">{learner.name}</td>
-                <td className="px-4 py-2">{learner.internetEmail}</td>
-                <td className="px-4 py-2">{learner.bandCd}</td>
-                <td className="px-4 py-2">{learner.jrs}</td>
-                <td className="px-4 py-2 text-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedLearners.includes(learner.cnum)}
-                    onChange={() => toggleLearnerSelection(learner.cnum)}
-                    className="form-checkbox h-4 w-4 text-blue-600"
-                  />
-                </td>
+      <div className="border rounded overflow-hidden">
+        <div className="max-h-96 overflow-y-auto">
+          <table className="min-w-full table-auto border-collapse">
+            <thead className="bg-gray-100 sticky top-0 z-10">
+              <tr>
+                <th className="px-4 py-2 text-left font-medium bg-gray-100">
+                  Learner ID
+                </th>
+                <th className="px-4 py-2 text-left font-medium bg-gray-100">
+                  Learner Name
+                </th>
+                <th className="px-4 py-2 text-left font-medium bg-gray-100">
+                  Email
+                </th>
+                <th className="px-4 py-2 text-left font-medium bg-gray-100">
+                  Band
+                </th>
+                <th className="px-4 py-2 text-left font-medium bg-gray-100">
+                  JRS
+                </th>
+                <th className="px-4 py-2 text-left font-medium bg-gray-100">
+                  Select
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredLearners.map((learner) => (
+                <tr key={learner.id} className="border-t">
+                  <td className="px-4 py-2">{learner.cnum}</td>
+                  <td className="px-4 py-2">{learner.name}</td>
+                  <td className="px-4 py-2">{learner.internetEmail}</td>
+                  <td className="px-4 py-2">{learner.bandCd}</td>
+                  <td className="px-4 py-2">{learner.jrs}</td>
+                  <td className="px-4 py-2 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedLearners.includes(learner.cnum)}
+                      onChange={() => toggleLearnerSelection(learner.cnum)}
+                      className="form-checkbox h-4 w-4 text-blue-600"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="mt-6">

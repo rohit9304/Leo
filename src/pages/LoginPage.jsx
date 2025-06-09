@@ -26,7 +26,9 @@ function LoginPage() {
     const userObj = userRoles.find(
       (u) => u.role === selectedRole && u.program === selectedProgram
     );
+    console.log(userObj);
     localStorage.setItem("market", userObj.market);
+    localStorage.setItem("user-role", userObj.role);
     console.log("apple", userObj);
     if (selectedProgram === "EAI Onboarding") {
       navigate("/cohorts"); // or any route based on your logic

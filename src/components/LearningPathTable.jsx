@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Loading from "../utils/Loading";
 
 export default function LearningPathTable() {
   const [learningPaths, setLearningPaths] = useState([]);
@@ -56,7 +57,7 @@ export default function LearningPathTable() {
   };
 
   if (loading) {
-    return <p className="text-center mt-10 text-gray-500">Loading...</p>;
+    return <Loading />;
   }
 
   return (
